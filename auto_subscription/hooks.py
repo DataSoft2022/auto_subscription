@@ -87,9 +87,10 @@ app_license = "MIT"
 # ---------------
 # Override standard doctype classes
 
-# override_doctype_class = {
-#	"ToDo": "custom_app.overrides.CustomToDo"
-# }
+override_doctype_class = {
+	# "ToDo": "custom_app.overrides.CustomToDo"
+	"Attendance": "auto_subscription.overrides.custom_attendance.CustomAttendance"
+}
 
 # Document Events
 # ---------------
@@ -106,7 +107,7 @@ app_license = "MIT"
 # Scheduled Tasks
 # ---------------
 
-# scheduler_events = {
+scheduler_events = {
 #	"all": [
 #		"auto_subscription.tasks.all"
 #	],
@@ -122,7 +123,12 @@ app_license = "MIT"
 #	"monthly": [
 #		"auto_subscription.tasks.monthly"
 #	]
-# }
+     "cron": {
+         "1 0 1 7 *": [
+             "auto_subscription.overrides.custom_sales_invoice.renew_members_subscriptions"
+         ]
+     }
+}
 
 # Testing
 # -------
