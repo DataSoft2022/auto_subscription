@@ -2,12 +2,14 @@ import frappe
 import datetime
 from copy import deepcopy
 
+
 def renew_members_subscriptions():
-    customers = frappe.get_list('Customer', filters={"customer_group": "عضو عامل"})
+    customers = frappe.get_list('Customer',
+                                filters={"customer_group": "عضو عامل"})
     for customer in customers:
         new_sales_invoice_with_new_subscribtion(customer['name'])
     frappe.db.commit()
-    
+
 
 def new_sales_invoice_with_new_subscribtion(customer_name):
     invoice = frappe.new_doc("Sales Invoice")
@@ -21,7 +23,9 @@ def new_sales_invoice_with_new_subscribtion(customer_name):
     invoice.items = get_product_bundle_items(product_bundle, customer_name)
     invoice.total_amount = sum(item.amount for item in invoice.items)
     invoice.sub_members = get_sub_members_items(customer_name)
-
+    invoice.taxes = get_taxes(invoice.taxes_and_charges,
+                              len(invoice.sub_members))
+    invoice.total_taxes_and_charge = sum(t.tax_amount for t in invoice.taxes)
     invoice.save()
     return invoice
 
@@ -39,11 +43,11 @@ def get_product_bundle_items(product_bundle, customer_name):
 
             else:
                 quantity = len(addresses)
-        elif item.category == 'all':
+        elif item.category == 'all' or item.category == '1':
             quantity += len(get_customer_address(customer_name, None))
 
-        elif item.category == 1:
-            quantity = item.qty
+        # elif item.category == 1:
+        #     quantity = item.qty
 
         if quantity == 0: continue
         rate = frappe.db.get("Item Price",
@@ -94,3 +98,19 @@ def get_sub_members_items(customer_name):
         sub_members.append(sub_member)
 
     return sub_members
+
+
+def get_taxes(template, count):
+    sales_taxes = frappe.get_doc('Sales Taxes and Charges Template', template)
+    taxes = sales_taxes.taxes
+    taxes_table = []
+    for tax in taxes:
+        row = frappe.new_doc('Sales Taxes and Charges')
+        for key in tax.as_dict().keys():
+            setattr(row, key, getattr(tax, key))
+        amount = tax.original_amount
+        total = amount * count + tax.tax_amount
+        row.tax_amount = total
+        row.parentfield = 'taxes'
+        taxes_table.append(row)
+    return taxes_table
