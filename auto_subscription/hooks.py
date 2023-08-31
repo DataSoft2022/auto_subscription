@@ -89,7 +89,7 @@ app_license = "MIT"
 
 override_doctype_class = {
 	# "ToDo": "custom_app.overrides.CustomToDo"
-	"Attendance": "auto_subscription.overrides.custom_attendance.CustomAttendance"
+#	"Attendance": "auto_subscription.overrides.custom_attendance.CustomAttendance"
 }
 
 # Document Events

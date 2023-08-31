@@ -3,10 +3,27 @@ import datetime
 from copy import deepcopy
 
 
+
 def renew_members_subscriptions():
     customers = frappe.get_list('Customer',
                                 filters={"customer_group": "عضو عامل"})
     for customer in customers:
+        new_sales_invoice_with_new_subscribtion(customer['name'])
+    frappe.db.commit()
+    
+def custom_renew_members_subscriptions():
+    customers = frappe.get_list('Customer',
+                                filters={"customer_group": "عضو عامل"})
+    for customer in customers:
+        past_year = datetime.datetime.now().year - 1
+        invoice_exists = frappe.db.exists(
+            "Sales Invoice", {
+                "customer": customer['name'],
+                "modified": ["<", datetime.datetime.now()],
+                "modified": [">", datetime.date(past_year, 7, 1)],
+                "docstatus": 0,
+                "product_bundle": "تجديد الأشتراك"
+            })
         new_sales_invoice_with_new_subscribtion(customer['name'])
     frappe.db.commit()
 
