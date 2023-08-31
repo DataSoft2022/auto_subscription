@@ -19,8 +19,8 @@ def custom_renew_members_subscriptions():
         invoice_exists = frappe.db.exists(
             "Sales Invoice", {
                 "customer": customer['name'],
-                "modified": ["<", datetime.datetime.now()],
-                "modified": [">", datetime.date(past_year, 7, 1)],
+                "modified": ["<", datetime.date(2023, 7, 1)],
+                "modified": [">", datetime.date(2022, 7, 1)],
                 "docstatus": 0,
                 "product_bundle": "تجديد الأشتراك"
             })
